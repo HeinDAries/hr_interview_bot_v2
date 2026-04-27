@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mining HR Interview AI • by Ba Hein Kyaw</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f4fa;--white:#ffffff;--blue:#1a4b8c;--blue2:#2563c7;--blue3:#3b82f6;
+  --blue-light:#dbeafe;--blue-muted:#eff6ff;--text:#0f1f3d;--muted:#64748b;
+  --border:#cbd5e1;--border2:#e2e8f0;--accent:#c9a96e;--accent2:#f59e0b;
+  --green:#059669;--green-light:#d1fae5;--danger:#dc2626;
+  --shadow:0 4px 24px rgba(26,75,140,0.10);--shadow2:0 2px 8px rgba(26,75,140,0.07);
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-size:15px;line-height:1.6;overflow:hidden}
+
+#setup-screen{height:100vh;display:flex;flex-direction:column;overflow-y:auto;animation:fadeIn .5s ease}
+.setup-header{background:var(--blue);padding:1.4rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.brand-title{font-family:'DM Serif Display',serif;font-size:19px;color:#fff;font-weight:400}
+.brand-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-top:1px}
+.free-badge{background:var(--green);color:#fff;font-size:11px;font-weight:600;padding:5px 14px;border-radius:20px;letter-spacing:.04em;white-space:nowrap}
+
+.setup-body{flex:1;padding:2rem;max-width:780px;margin:0 auto;width:100%}
+.hero{text-align:center;padding:2rem 0 1.5rem}
+.hero h2{font-family:'DM Serif Display',serif;font-size:28px;color:var(--blue);font-weight:400;margin-bottom:.5rem}
+.hero p{color:var(--muted);font-size:13.5px}
+.hero-tags{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:.8rem}
+.tag{background:var(--blue-muted);border:1px solid var(--blue-light);color:var(--blue2);font-size:11px;font-weight:500;padding:4px 12px;border-radius:20px}
+
+.quick-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:1.5rem}
+.quick-btn{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:10px 16px;font-family:'Sora',sans-serif;font-size:12.5px;font-weight:500;color:var(--text);cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:7px}
+.quick-btn:hover{border-color:var(--blue3);color:var(--blue2);background:var(--blue-muted);transform:translateY(-1px);box-shadow:var(--shadow2)}
+
+.form-card{background:var(--white);border:1px solid var(--border2);border-radius:18px;padding:1.8rem;box-shadow:var(--shadow)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+@media(max-width:560px){.form-grid{grid-template-columns:1fr}}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Sora',sans-serif;font-size:13.5px;outline:none;transition:border-color .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue3);background:#fff}
+.field select option{background:#fff}
+.field textarea{resize:vertical;min-height:65px;line-height:1.5}
+.field-full{grid-column:1/-1}
+.divider{border:none;border-top:1px solid var(--border2);margin:.8rem 0}
+.start-btn{width:100%;padding:15px;background:var(--blue);border:none;border-radius:12px;color:#fff;font-family:'Sora',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:.6rem;letter-spacing:.02em}
+.start-btn:hover{background:var(--blue2);transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,75,140,0.25)}
+.start-btn svg{width:18px;height:18px;fill:#fff}
+.setup-footer{text-align:center;color:var(--muted);font-size:11.5px;padding:.8rem 0 1.5rem}
+
+#interview-screen{height:100vh;display:none;flex-direction:column;background:var(--bg)}
+.iheader{background:var(--white);padding:.85rem 1.5rem;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:var(--shadow2)}
+.cinfo{display:flex;align-items:center;gap:10px}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue3));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;flex-shrink:0}
+.cname{font-size:13.5px;font-weight:600;color:var(--text)}
+.crole{font-size:11px;color:var(--muted)}
+.hright{display:flex;align-items:center;gap:8px}
+.live-badge{background:var(--green-light);border:1px solid #a7f3d0;border-radius:20px;padding:3px 10px;font-size:11px;color:var(--green);font-weight:600;letter-spacing:.04em}
+.qpill{background:var(--blue-muted);border:1px solid var(--blue-light);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--blue2)}
+.qpill span{font-weight:600}
+.end-btn{background:transparent;border:1.5px solid var(--border);border-radius:8px;padding:5px 13px;color:var(--muted);font-family:'Sora',sans-serif;font-size:12px;cursor:pointer;transition:all .2s}
+.end-btn:hover{border-color:var(--danger);color:var(--danger)}
+
+.chat-area{flex:1;overflow-y:auto;padding:1.4rem 1.5rem;display:flex;flex-direction:column;gap:.9rem;scroll-behavior:smooth}
+.chat-area::-webkit-scrollbar{width:4px}
+.chat-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.msg{display:flex;gap:9px;animation:msgIn .22s ease;max-width:700px}
+.msg.user{flex-direction:row-reverse;align-self:flex-end}
+.msg.ai{align-self:flex-start}
+.msg-av{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;margin-top:2px}
+.msg.ai .msg-av{background:linear-gradient(135deg,var(--blue),var(--blue3));color:#fff}
+.msg.user .msg-av{background:var(--bg);border:1.5px solid var(--border);color:var(--muted)}
+.msg-bubble{padding:11px 15px;border-radius:14px;font-size:13.5px;line-height:1.65;max-width:540px}
+.msg.ai .msg-bubble{background:var(--white);border:1px solid var(--border2);border-bottom-left-radius:3px;color:var(--text);box-shadow:var(--shadow2)}
+.msg.user .msg-bubble{background:var(--blue);color:#fff;border-bottom-right-radius:3px}
+.typing-bubble{background:var(--white);border:1px solid var(--border2);border-radius:14px;border-bottom-left-radius:3px;padding:13px 17px;display:flex;gap:5px;align-items:center;box-shadow:var(--shadow2)}
+.dot{width:6px;height:6px;background:var(--blue3);border-radius:50%;animation:bounce 1.2s infinite;opacity:.7}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+
+.voice-panel{flex-shrink:0;background:var(--white);border-top:1px solid var(--border2);padding:1rem 1.5rem 1.4rem;box-shadow:0 -2px 12px rgba(26,75,140,0.06)}
+.voice-status{text-align:center;font-size:12px;color:var(--muted);margin-bottom:.9rem;min-height:18px;transition:all .3s;font-weight:500}
+.voice-status.speaking{color:var(--blue2)}
+.voice-status.listening{color:var(--green)}
+.voice-controls{display:flex;align-items:center;justify-content:center;gap:18px}
+.mic-btn{width:66px;height:66px;border-radius:50%;border:2.5px solid var(--border);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;position:relative}
+.mic-btn svg{width:26px;height:26px;fill:var(--muted);transition:fill .2s}
+.mic-btn:hover{border-color:var(--blue3)}
+.mic-btn.listening{border-color:var(--green);background:var(--green-light);animation:pulse-green 1.5s infinite}
+.mic-btn.listening svg{fill:var(--green)}
+.mic-btn.speaking-ai{border-color:var(--blue3);background:var(--blue-muted);animation:pulse-blue 1.5s infinite}
+.mic-btn.speaking-ai svg{fill:var(--blue2)}
+.ring{position:absolute;width:66px;height:66px;border-radius:50%;border:2px solid transparent;top:-2px;left:-2px;pointer-events:none}
+.ring.active-green{border-color:var(--green);animation:ring-expand 1s ease-out infinite}
+.ring.active-blue{border-color:var(--blue3);animation:ring-expand 1s ease-out infinite}
+.side-btns{display:flex;flex-direction:column;gap:8px}
+.side-btn{background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:7px 14px;color:var(--muted);font-family:'Sora',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap}
+.side-btn:hover{color:var(--text);border-color:var(--blue3)}
+.side-btn.active{border-color:var(--blue3);color:var(--blue2);background:var(--blue-muted)}
+.transcript-row{display:flex;gap:8px;align-items:flex-end;margin-top:.8rem}
+#text-input{flex:1;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:9px 13px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none;resize:none;max-height:100px;line-height:1.5;transition:border-color .2s;display:none}
+#text-input:focus{border-color:var(--blue3);background:#fff}
+#text-input::placeholder{color:var(--muted)}
+.send-txt-btn{background:var(--blue);border:none;border-radius:9px;width:38px;height:38px;cursor:pointer;display:none;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.send-txt-btn:hover{background:var(--blue2)}
+.send-txt-btn svg{width:16px;height:16px;fill:#fff}
+
+#summary-screen{height:100vh;display:none;flex-direction:column;align-items:center;justify-content:center;padding:2rem;background:var(--bg);animation:fadeIn .5s ease;overflow-y:auto}
+.sum-card{background:var(--white);border:1px solid var(--border2);border-radius:20px;padding:2.5rem;max-width:520px;width:100%;text-align:center;box-shadow:var(--shadow)}
+.score-ring{width:88px;height:88px;border-radius:50%;border:3px solid var(--blue);display:flex;align-items:center;justify-content:center;margin:0 auto 1.4rem;flex-direction:column;background:var(--blue-muted)}
+.score-ring .snum{font-family:'DM Serif Display',serif;font-size:28px;color:var(--blue);line-height:1}
+.score-ring .slbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.sum-card h2{font-family:'DM Serif Display',serif;font-size:22px;font-weight:400;margin-bottom:4px;color:var(--text)}
+.sum-card .sub{color:var(--muted);font-size:12px;margin-bottom:1.5rem}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1.4rem}
+.sbox{background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:11px 6px}
+.sbox .sv{font-size:19px;font-weight:700;color:var(--blue);display:block}
+.sbox .sk{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:500}
+.dl-btn{width:100%;padding:13px;background:var(--blue);border:none;border-radius:11px;color:#fff;font-family:'Sora',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:9px;transition:all .2s}
+.dl-btn:hover{background:var(--blue2)}
+.rs-btn{width:100%;padding:11px;background:transparent;border:1.5px solid var(--border);border-radius:11px;color:var(--muted);font-family:'Sora',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}
+.rs-btn:hover{color:var(--text);border-color:var(--blue3)}
+.err-note{background:#fef2f2;border:1px solid #fecaca;border-radius:9px;padding:9px 13px;margin:0 0 12px;font-size:11px;color:var(--danger);line-height:1.5;text-align:left;display:none}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes msgIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+@keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(5,150,105,.2)}50%{box-shadow:0 0 0 8px rgba(5,150,105,0)}}
+@keyframes pulse-blue{0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,.2)}50%{box-shadow:0 0 0 8px rgba(59,130,246,0)}}
+@keyframes ring-expand{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.55);opacity:0}}
+</style>
+</head>
+<body>
+
+<div id="setup-screen">
+  <div class="setup-header">
+    <div class="brand">
+      <div class="brand-icon">⛏️</div>
+      <div>
+        <div class="brand-title">Mining HR Interview AI</div>
+        <div class="brand-sub">Drilling & Mineral Exploration • Laos · Thailand · Myanmar · Indonesia</div>
+      </div>
+    </div>
+    <span class="free-badge">100% FREE</span>
+  </div>
+
+  <div class="setup-body">
+    <div class="hero">
+      <h2>Voice-Powered Candidate Screening</h2>
+      <p>AI interviewer built for mining & exploration roles. No login. No subscription. Just start.</p>
+      <div class="hero-tags">
+        <span class="tag">⚡ Groq LLM</span>
+        <span class="tag">🎙️ Google Neural TTS</span>
+        <span class="tag">📊 Excel Export</span>
+        <span class="tag">🌏 Multi-country</span>
+        <span class="tag">🔒 Secure</span>
+      </div>
+    </div>
+
+    <div class="quick-btns">
+      <button class="quick-btn" onclick="quickStart('Drill Rig Supervisor')">🪨 Drill Rig Supervisor</button>
+      <button class="quick-btn" onclick="quickStart('Geologist')">🧪 Geologist</button>
+      <button class="quick-btn" onclick="quickStart('Safety Officer')">🛡️ Safety Officer</button>
+      <button class="quick-btn" onclick="quickStart('FIFO Rig Technician')">⛏️ FIFO Rig Technician</button>
+      <button class="quick-btn" onclick="quickStart('Exploration Manager')">🗺️ Exploration Manager</button>
+    </div>
+
+    <div class="form-card">
+      <div class="form-grid">
+        <div class="field">
+          <label>Candidate Name</label>
+          <input type="text" id="candidate-name" placeholder="e.g. Aung Kyaw Zin" />
+        </div>
+        <div class="field">
+          <label>Role Applied For</label>
+          <select id="role-select">
+            <option>Drill Rig Supervisor</option>
+            <option>Geologist</option>
+            <option>Safety Officer</option>
+            <option>FIFO Rig Technician</option>
+            <option>Exploration Manager</option>
+            <option>HR Officer</option>
+            <option>HR Manager</option>
+            <option>Finance Officer</option>
+            <option>Admin Officer</option>
+            <option>Payroll Officer</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Experience Level</label>
+          <select id="exp-select">
+            <option value="0-1 years">0–1 years (Entry)</option>
+            <option value="2-3 years">2–3 years (Junior)</option>
+            <option value="3-5 years" selected>3–5 years (Mid)</option>
+            <option value="5-8 years">5–8 years (Senior)</option>
+            <option value="8+ years">8+ years (Lead/Manager)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Interview Language</label>
+          <select id="lang-select">
+            <option value="English">English</option>
+            <option value="Thai">Thai</option>
+            <option value="Myanmar (Burmese)">Myanmar (Burmese)</option>
+          </select>
+        </div>
+        <div class="field field-full">
+          <label>Job Description (optional)</label>
+          <textarea id="jd-input" placeholder="Paste key responsibilities or requirements to sharpen questions…"></textarea>
+        </div>
+      </div>
+      <hr class="divider">
+      <button class="start-btn" onclick="startInterview()">
+        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 3.39-3.4 6-6.91 6s-6.42-2.61-6.91-6H2.1C2.58 14.93 6 18 10 18.93V21h4v-2.07C17.98 18 21.42 14.93 21.9 11H17.9z"/></svg>
+        Start Voice Interview
+      </button>
+    </div>
+    <div class="setup-footer">
+      Built by Ba Hein Kyaw · Group HR Manager · Powered by Groq + Google Cloud + Cloudflare Workers
+    </div>
+  </div>
+</div>
+
+<div id="interview-screen">
+  <div class="iheader">
+    <div class="cinfo">
+      <div class="avatar" id="hdr-avatar">?</div>
+      <div><div class="cname" id="hdr-name">Candidate</div><div class="crole" id="hdr-role">Role</div></div>
+    </div>
+    <div class="hright">
+      <div class="live-badge">● LIVE AI</div>
+      <div class="qpill">Q <span id="q-count">0</span></div>
+      <button class="end-btn" onclick="endInterview()">End &amp; Export</button>
+    </div>
+  </div>
+  <div class="chat-area" id="chat-area"></div>
+  <div class="voice-panel">
+    <div class="voice-status" id="vstatus">Press the mic to start</div>
+    <div class="voice-controls">
+      <div class="side-btns">
+        <button class="side-btn" id="type-toggle-btn" onclick="toggleTextMode()">Use Text</button>
+        <button class="side-btn" onclick="skipSpeech()">Skip TTS</button>
+      </div>
+      <button class="mic-btn" id="mic-btn" onclick="handleMicClick()">
+        <div class="ring" id="mic-ring"></div>
+        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 3.39-3.4 6-6.91 6s-6.42-2.61-6.91-6H2.1C2.58 14.93 6 18 10 18.93V21h4v-2.07C17.98 18 21.42 14.93 21.9 11H17.9z"/></svg>
+      </button>
+      <div class="side-btns">
+        <button class="side-btn" id="mute-btn" onclick="toggleMute()">Mute AI</button>
+        <button class="side-btn" onclick="endInterview()">Finish</button>
+      </div>
+    </div>
+    <div class="transcript-row">
+      <textarea id="text-input" rows="1" placeholder="Type your answer…" onkeydown="handleTextKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="send-txt-btn" id="send-txt-btn" onclick="sendTextAnswer()">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="summary-screen">
+  <div class="sum-card">
+    <div class="score-ring"><span class="snum" id="final-score">--</span><span class="slbl">/ 100</span></div>
+    <h2 id="sum-name">Interview Complete</h2>
+    <p class="sub" id="sum-sub">Processing…</p>
+    <div class="err-note" id="err-note"></div>
+    <div class="stats-grid">
+      <div class="sbox"><span class="sv" id="stat-q">0</span><span class="sk">Questions</span></div>
+      <div class="sbox"><span class="sv" id="stat-min">0</span><span class="sk">Minutes</span></div>
+      <div class="sbox"><span class="sv" id="stat-rec">--</span><span class="sk">Verdict</span></div>
+    </div>
+    <button class="dl-btn" onclick="downloadExcel()">📥 Download Excel Report</button>
+    <button class="rs-btn" onclick="restart()">Start New Interview</button>
+  </div>
+</div>
+
+<script>
+var WORKER_URL = 'https://hr-proxy.baheinkyaw-biz.workers.dev';
+
+var conversationHistory=[],candidateData={},questionCount=0,startTime=null,summaryData=null;
+var isEnding=false,isMuted=false,isTextMode=false,isListening=false,isSpeaking=false;
+var recognition=null,pendingTranscript='',lastApiCallAt=0,MIN_CALL_INTERVAL=2000;
+
+function quickStart(role){
+  document.getElementById('role-select').value=role;
+  document.getElementById('candidate-name').focus();
+}
+
+async function rateLimit(){
+  var now=Date.now(),sinceLast=now-lastApiCallAt;
+  if(sinceLast<MIN_CALL_INTERVAL) await new Promise(function(r){setTimeout(r,MIN_CALL_INTERVAL-sinceLast);});
+  lastApiCallAt=Date.now();
+}
+
+async function callGroq(messages,systemPrompt,maxTokens){
+  await rateLimit();
+  var msgs=[];
+  if(systemPrompt)msgs.push({role:'system',content:systemPrompt});
+  messages.forEach(function(m){msgs.push({role:m.role==='assistant'?'assistant':'user',content:m.content});});
+  var r=await fetch(WORKER_URL+'/groq',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({messages:msgs,max_tokens:maxTokens||400,temperature:0.8,top_p:0.95,stream:false})});
+  if(!r.ok){var err;try{err=await r.json();}catch(e){err={};}throw new Error((err.error&&(err.error.message||err.error.type))||('Worker error '+r.status));}
+  var data=await r.json();
+  if(data.choices&&data.choices[0]&&data.choices[0].message)return data.choices[0].message.content;
+  throw new Error('Empty response from Worker');
+}
+
+async function callTTS(text){
+  var r=await fetch(WORKER_URL+'/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text})});
+  if(!r.ok)throw new Error('TTS error '+r.status);
+  var data=await r.json();
+  if(!data.audioContent)throw new Error('No audio returned');
+  return data.audioContent;
+}
+
+function getInitials(name){return name.trim().split(/\s+/).map(function(n){return n[0];}).join('').toUpperCase().slice(0,2);}
+function setStatus(text,type){var el=document.getElementById('vstatus');el.textContent=text;el.className='voice-status'+(type?' '+type:'');}
+function setMicState(state){
+  var btn=document.getElementById('mic-btn'),ring=document.getElementById('mic-ring');
+  btn.className='mic-btn';ring.className='ring';
+  if(state==='listening'){btn.className='mic-btn listening';ring.className='ring active-green';}
+  if(state==='speaking'){btn.className='mic-btn speaking-ai';ring.className='ring active-blue';}
+}
+function appendMessage(role,text){
+  var area=document.getElementById('chat-area'),div=document.createElement('div');
+  div.className='msg '+role;
+  var displayText=text.replace(/\[INTERVIEW_COMPLETE\]/gi,'').trim();
+  div.innerHTML='<div class="msg-av">'+(role==='ai'?'AI':getInitials(candidateData.name))+'</div>'
+               +'<div class="msg-bubble">'+displayText.replace(/\n/g,'<br>')+'</div>';
+  area.appendChild(div);area.scrollTop=area.scrollHeight;
+}
+function showTyping(){
+  var area=document.getElementById('chat-area'),div=document.createElement('div');
+  div.className='msg ai';div.id='typing-ind';
+  div.innerHTML='<div class="msg-av">AI</div><div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  area.appendChild(div);area.scrollTop=area.scrollHeight;
+}
+function removeTyping(){var t=document.getElementById('typing-ind');if(t)t.remove();}
+
+function speakText(text,onDone){
+  if(isMuted){isSpeaking=false;setMicState('idle');setStatus('Tap mic to answer','');if(onDone)onDone();return;}
+  var cleanText=text.replace(/\[INTERVIEW_COMPLETE\]/gi,'').replace(/[*_#`]/g,'').trim();
+  if(!cleanText){if(onDone)onDone();return;}
+  isSpeaking=true;setMicState('speaking');setStatus('AI speaking… tap mic to skip','speaking');
+  callTTS(cleanText)
+    .then(function(audioContent){
+      var audio=new Audio('data:audio/mp3;base64,'+audioContent);
+      window._currentAudio=audio;
+      audio.onended=function(){isSpeaking=false;if(!isEnding){setMicState('idle');setStatus('Tap mic to answer','');}if(onDone)onDone();};
+      audio.onerror=function(){isSpeaking=false;setMicState('idle');setStatus('Tap mic to answer','');if(onDone)onDone();};
+      audio.play();
+    })
+    .catch(function(err){console.warn('TTS failed, browser fallback:',err);isSpeaking=false;speakWithBrowser(cleanText,onDone);});
+}
+
+function speakWithBrowser(cleanText,onDone){
+  if(!window.speechSynthesis){isSpeaking=false;setMicState('idle');setStatus('Tap mic to answer','');if(onDone)onDone();return;}
+  window.speechSynthesis.cancel();
+  var utt=new SpeechSynthesisUtterance(cleanText);
+  utt.rate=0.88;utt.pitch=0.85;utt.volume=1;
+  var voices=window.speechSynthesis.getVoices();
+  var male=voices.filter(function(v){return v.lang.startsWith('en')&&(v.name.includes('Male')||v.name.includes('David')||v.name.includes('Mark')||v.name.includes('Daniel')||v.name.includes('Google UK English Male')||v.name.includes('Arthur')||v.name.includes('James'));});
+  if(male.length){utt.voice=male[0];}else{var eng=voices.filter(function(v){return v.lang.startsWith('en');});if(eng.length)utt.voice=eng[0];utt.pitch=0.7;}
+  isSpeaking=true;setMicState('speaking');setStatus('AI speaking… tap mic to skip','speaking');
+  utt.onend=function(){isSpeaking=false;if(!isEnding){setMicState('idle');setStatus('Tap mic to answer','');}if(onDone)onDone();};
+  utt.onerror=function(){isSpeaking=false;setMicState('idle');setStatus('Tap mic to answer','');if(onDone)onDone();};
+  window.speechSynthesis.speak(utt);
+}
+
+function skipSpeech(){
+  if(window._currentAudio){window._currentAudio.pause();window._currentAudio.currentTime=0;window._currentAudio=null;}
+  window.speechSynthesis&&window.speechSynthesis.cancel();
+  isSpeaking=false;setMicState('idle');setStatus('Tap mic to answer','');
+}
+function toggleMute(){
+  isMuted=!isMuted;
+  document.getElementById('mute-btn').textContent=isMuted?'Unmute AI':'Mute AI';
+  document.getElementById('mute-btn').className=isMuted?'side-btn active':'side-btn';
+  if(isMuted&&isSpeaking)skipSpeech();
+}
+function toggleTextMode(){
+  isTextMode=!isTextMode;
+  document.getElementById('type-toggle-btn').textContent=isTextMode?'Use Voice':'Use Text';
+  document.getElementById('type-toggle-btn').className=isTextMode?'side-btn active':'side-btn';
+  document.getElementById('text-input').style.display=isTextMode?'block':'none';
+  document.getElementById('send-txt-btn').style.display=isTextMode?'flex':'none';
+  if(isTextMode)document.getElementById('text-input').focus();
+}
+function sendTextAnswer(){var inp=document.getElementById('text-input'),text=inp.value.trim();if(!text)return;inp.value='';inp.style.height='auto';processAnswer(text);}
+function handleTextKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendTextAnswer();}}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+
+function initSpeechRecognition(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){setStatus('Voice not supported — use text mode','');toggleTextMode();return;}
+  recognition=new SR();recognition.continuous=false;recognition.interimResults=true;recognition.lang='en-US';
+  recognition.onstart=function(){isListening=true;setMicState('listening');setStatus('Listening…','listening');};
+  recognition.onresult=function(e){
+    var t='';for(var i=e.resultIndex;i<e.results.length;i++)t+=e.results[i][0].transcript;
+    pendingTranscript=t;
+    if(e.results[e.results.length-1].isFinal){
+      isListening=false;
+      if(pendingTranscript.trim())processAnswer(pendingTranscript.trim());
+      else{setStatus('Tap mic to speak','');setMicState('idle');}
+      pendingTranscript='';
+    }
+  };
+  recognition.onerror=function(e){isListening=false;setMicState('idle');if(e.error==='not-allowed'){setStatus('Mic blocked — use text mode','');toggleTextMode();}else setStatus('Tap mic to try again','');};
+  recognition.onend=function(){if(isListening){isListening=false;setMicState('idle');setStatus('Tap mic to speak','');}};
+}
+function handleMicClick(){
+  if(isSpeaking){skipSpeech();return;}
+  if(isListening){recognition&&recognition.stop();return;}
+  if(recognition){try{pendingTranscript='';recognition.start();}catch(e){setStatus('Tap mic to try again','');}}
+}
+
+function getSystemPrompt(){
+  var jd=candidateData.jd?'\n\nJOB DESCRIPTION:\n'+candidateData.jd:'';
+  var lang=candidateData.lang||'English';
+  return 'You are a warm, professional HR interviewer for a drilling and mineral exploration company operating across Laos, Thailand, Myanmar, and Indonesia.'+jd+'\n\n'
+    +'Candidate: '+candidateData.name+' | Role: '+candidateData.role+' | Experience: '+candidateData.exp+'\n\n'
+    +'Conduct the interview in '+lang+'.\n\n'
+    +'RULES:\n'
+    +'- ONE question per turn only. Never stack questions.\n'
+    +'- Max 2–3 sentences per response (voice conversation).\n'
+    +'- Ask role-specific questions relevant to mining, drilling, or exploration operations.\n'
+    +'- Cover: motivation & background, technical knowledge, site/field experience, safety awareness, situational judgment, FIFO/remote work adaptability.\n'
+    +'- Calibrate difficulty to experience level.\n'
+    +'- Stay professional even if the candidate is rude or makes controversial statements. Note for evaluation.\n'
+    +'- Never mention scores or evaluation criteria.\n'
+    +'- After 8–15 candidate exchanges, deliver a warm closing message thanking '+candidateData.name+' and saying you will be in touch.\n'
+    +'- IMPORTANT: When you deliver the final closing message (and ONLY then), append [INTERVIEW_COMPLETE] at the very end. Do not use this token at any other time.\n'
+    +'- Begin with a warm greeting and first question about their background.';
+}
+
+function startInterview(){
+  var name=document.getElementById('candidate-name').value.trim();
+  if(!name){alert('Please enter the candidate name.');return;}
+  candidateData={name:name,role:document.getElementById('role-select').value,exp:document.getElementById('exp-select').value,lang:document.getElementById('lang-select').value,jd:document.getElementById('jd-input').value.trim()};
+  startTime=Date.now();questionCount=0;conversationHistory=[];
+  isEnding=false;summaryData=null;isMuted=false;isTextMode=false;isSpeaking=false;isListening=false;lastApiCallAt=0;
+  document.getElementById('hdr-avatar').textContent=getInitials(name);
+  document.getElementById('hdr-name').textContent=name;
+  document.getElementById('hdr-role').textContent=candidateData.role+' · '+candidateData.exp;
+  document.getElementById('q-count').textContent=0;
+  document.getElementById('chat-area').innerHTML='';
+  document.getElementById('text-input').style.display='none';
+  document.getElementById('send-txt-btn').style.display='none';
+  document.getElementById('type-toggle-btn').textContent='Use Text';document.getElementById('type-toggle-btn').className='side-btn';
+  document.getElementById('mute-btn').textContent='Mute AI';document.getElementById('mute-btn').className='side-btn';
+  document.getElementById('err-note').style.display='none';
+  document.getElementById('setup-screen').style.display='none';
+  document.getElementById('interview-screen').style.display='flex';
+  initSpeechRecognition();setStatus('AI is thinking…','processing');showTyping();
+  callGroq([{role:'user',content:'Begin the interview now.'}],getSystemPrompt(),400)
+    .then(function(reply){removeTyping();conversationHistory.push({role:'assistant',content:reply});appendMessage('ai',reply);speakText(reply);})
+    .catch(function(err){removeTyping();console.error(err);appendMessage('ai','⚠️ Error: '+(err.message||'Connection error')+'\n\nCheck Worker is deployed at '+WORKER_URL);setStatus('Connection error','');});
+}
+
+function processAnswer(text){
+  if(isEnding)return;
+  setMicState('idle');setStatus('Processing…','processing');
+  appendMessage('user',text);questionCount++;
+  document.getElementById('q-count').textContent=questionCount;
+  conversationHistory.push({role:'user',content:text});showTyping();
+  callGroq(conversationHistory,getSystemPrompt(),400)
+    .then(function(reply){
+      removeTyping();conversationHistory.push({role:'assistant',content:reply});appendMessage('ai',reply);
+      if(!isEnding&&/\[INTERVIEW_COMPLETE\]/i.test(reply)){isEnding=true;speakText(reply,function(){setTimeout(endInterview,1500);});return;}
+      speakText(reply);
+    })
+    .catch(function(err){
+      removeTyping();console.error(err);var msg=err.message||'';
+      if(/rate.limit|429|too many/i.test(msg))appendMessage('ai','⚠️ Rate limit hit — please wait a moment and try again.');
+      else appendMessage('ai','⚠️ '+(msg||'Connection issue')+' — please try again.');
+      setStatus('Tap mic to answer','');setMicState('idle');
+    });
+}
+
+function endInterview(){
+  window.speechSynthesis&&window.speechSynthesis.cancel();recognition&&recognition.stop();
+  isSpeaking=false;isListening=false;
+  document.getElementById('interview-screen').style.display='none';
+  document.getElementById('summary-screen').style.display='flex';
+  var elapsed=Math.max(1,Math.round((Date.now()-startTime)/60000));
+  document.getElementById('sum-name').textContent=candidateData.name;
+  document.getElementById('sum-sub').textContent=candidateData.role+' · '+candidateData.exp;
+  document.getElementById('stat-q').textContent=questionCount;
+  document.getElementById('stat-min').textContent=elapsed;
+  document.getElementById('final-score').textContent='…';
+  document.getElementById('stat-rec').textContent='…';
+  document.getElementById('err-note').style.display='none';
+  generateSummary(elapsed);
+}
+
+function generateSummary(elapsed){
+  var transcript=conversationHistory.map(function(m){var content=m.content.replace(/\[INTERVIEW_COMPLETE\]/gi,'').trim();return(m.role==='assistant'?'Interviewer':'Candidate')+': '+content;}).join('\n\n');
+  var prompt='Evaluate this HR interview for a mining/drilling company. Score honestly.\n\n'
+    +'Candidate: '+candidateData.name+'\nRole: '+candidateData.role+'\nExperience: '+candidateData.exp
+    +'\nDuration: '+elapsed+' min | Exchanges: '+questionCount+'\n\nTRANSCRIPT:\n'+transcript
+    +'\n\nReturn ONLY valid JSON, no markdown, no backticks:\n'
+    +'{"overall_score":72,"verdict":"Recommended","summary":"2-3 sentence overview","strengths":["..."],"concerns":["..."],'
+    +'"competency_scores":{"Communication":75,"Technical Knowledge":70,"Safety Awareness":80,"Field Experience":65,"Cultural Fit":70},'
+    +'"recommendation":"hiring recommendation"}';
+  callGroq([{role:'user',content:prompt}],null,2000)
+    .then(function(raw){
+      var clean=raw.replace(/```json|```/g,'').trim();
+      var fb=clean.indexOf('{'),lb=clean.lastIndexOf('}');
+      if(fb>=0&&lb>fb)clean=clean.substring(fb,lb+1);
+      summaryData=JSON.parse(clean);
+      document.getElementById('final-score').textContent=summaryData.overall_score;
+      document.getElementById('stat-rec').textContent=summaryData.verdict==='Recommended'?'Yes':'Review';
+    })
+    .catch(function(err){
+      console.error('Summary error:',err);
+      summaryData={overall_score:'--',verdict:'Manual Review',summary:'Auto-summary failed. Transcript still available.',strengths:[],concerns:[],competency_scores:{},recommendation:'Manual review required.'};
+      document.getElementById('final-score').textContent='--';document.getElementById('stat-rec').textContent='?';
+      var note=document.getElementById('err-note');note.textContent='⚠ Summary failed: '+(err.message||'unknown error')+'. Transcript export still works.';note.style.display='block';
+    });
+}
+
+function downloadExcel(){
+  if(!summaryData){alert('Summary still loading — please wait.');return;}
+  var elapsed=document.getElementById('stat-min').textContent;
+  var wb=XLSX.utils.book_new();
+  var ws1=XLSX.utils.aoa_to_sheet([['MINING HR INTERVIEW REPORT',''],['',''],['Candidate',candidateData.name],['Role',candidateData.role],['Experience',candidateData.exp],['Language',candidateData.lang],['Date',new Date().toLocaleDateString()],['Duration (min)',elapsed],['Questions',questionCount],['',''],['OVERALL SCORE',summaryData.overall_score+' / 100'],['VERDICT',summaryData.verdict],['',''],['SUMMARY',summaryData.summary],['',''],['RECOMMENDATION',summaryData.recommendation]]);
+  ws1['!cols']=[{wch:22},{wch:60}];XLSX.utils.book_append_sheet(wb,ws1,'Summary');
+  var compRows=[['Competency','Score','Rating']];
+  Object.keys(summaryData.competency_scores||{}).forEach(function(k){var v=summaryData.competency_scores[k];compRows.push([k,v,v>=80?'Strong':v>=65?'Satisfactory':'Needs Development']);});
+  var ws2=XLSX.utils.aoa_to_sheet(compRows);ws2['!cols']=[{wch:25},{wch:10},{wch:22}];XLSX.utils.book_append_sheet(wb,ws2,'Competency Scores');
+  var s=summaryData.strengths||[],c=summaryData.concerns||[],scRows=[['Strengths','Concerns']];
+  for(var i=0;i<Math.max(s.length,c.length);i++)scRows.push([s[i]||'',c[i]||'']);
+  var ws3=XLSX.utils.aoa_to_sheet(scRows);ws3['!cols']=[{wch:45},{wch:45}];XLSX.utils.book_append_sheet(wb,ws3,'Strengths & Concerns');
+  var txRows=[['Speaker','Message']];
+  conversationHistory.forEach(function(m){var content=m.content.replace(/\[INTERVIEW_COMPLETE\]/gi,'').trim();txRows.push([m.role==='assistant'?'Interviewer':'Candidate',content]);});
+  var ws4=XLSX.utils.aoa_to_sheet(txRows);ws4['!cols']=[{wch:14},{wch:85}];XLSX.utils.book_append_sheet(wb,ws4,'Full Transcript');
+  XLSX.writeFile(wb,'Interview_'+candidateData.name.replace(/\s+/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.xlsx');
+}
+
+function restart(){
+  summaryData=null;questionCount=0;isEnding=false;isMuted=false;isTextMode=false;
+  conversationHistory=[];isSpeaking=false;isListening=false;
+  window.speechSynthesis&&window.speechSynthesis.cancel();
+  document.getElementById('summary-screen').style.display='none';
+  document.getElementById('setup-screen').style.display='flex';
+}
+
+if(window.speechSynthesis){window.speechSynthesis.getVoices();window.speechSynthesis.onvoiceschanged=function(){window.speechSynthesis.getVoices();};}
+</script>
+</body>
+</html>
